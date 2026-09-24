@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/teste-catapi/static/css/main.ff7814ca.css",
+    "main.js": "/teste-catapi/static/js/main.17df1ac2.js",
+    "static/js/453.43f5d6dd.chunk.js": "/teste-catapi/static/js/453.43f5d6dd.chunk.js",
+    "index.html": "/teste-catapi/index.html",
+    "main.ff7814ca.css.map": "/teste-catapi/static/css/main.ff7814ca.css.map",
+    "main.17df1ac2.js.map": "/teste-catapi/static/js/main.17df1ac2.js.map",
+    "453.43f5d6dd.chunk.js.map": "/teste-catapi/static/js/453.43f5d6dd.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ff7814ca.css",
+    "static/js/main.17df1ac2.js"
+  ]
+}
