@@ -69,7 +69,7 @@ function App() {
         {/* Conteúdo */}
         <main className="pb-12">
           <Routes>
-            <Route path="/cat-api" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/quiz" element={<QuizPage />} />
