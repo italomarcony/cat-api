@@ -1,6 +1,10 @@
 import React from 'react';
+import { getBreedRating, getBreedTemperament, parseBoolean } from '../../utils/breedData';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function ComparisonTable({ breeds }) {
+  const { language } = useLanguage();
   const colors = [
     'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200',
     'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200',
@@ -8,8 +12,8 @@ function ComparisonTable({ breeds }) {
   ];
 
   const characteristics = [
-    { key: 'affection_level', label: 'Nível de Afeto', icon: '❤️' },
-    { key: 'energy_level', label: 'Nível de Energia', icon: '⚡' },
+    { key: 'affection_level', label: 'Afeto', icon: '❤️' },
+    { key: 'energy_level', label: 'Energia', icon: '⚡' },
     { key: 'intelligence', label: 'Inteligência', icon: '🧠' },
     { key: 'social_needs', label: 'Necessidades Sociais', icon: '👥' },
     { key: 'child_friendly', label: 'Amigável com Crianças', icon: '👶' },
@@ -23,19 +27,20 @@ function ComparisonTable({ breeds }) {
   ];
 
   const renderLevel = (value) => {
-    if (!value) return <span className="text-gray-400 dark:text-gray-600">N/A</span>;
+    const rating = getBreedRating({ value }, 'value');
+    if (rating === null) return <span className="text-gray-400 dark:text-gray-600">{translateText('N/D', language)}</span>;
     return (
       <div className="flex items-center gap-1">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
             className={`w-3 h-3 rounded-full ${
-              i < value ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
+              i < rating ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           />
         ))}
         <span className="ml-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {value}/5
+          {rating}/5
         </span>
       </div>
     );
@@ -44,25 +49,29 @@ function ComparisonTable({ breeds }) {
   const renderInfo = (breed, key) => {
     switch (key) {
       case 'life_span':
-        return breed.life_span || 'N/A';
+        return breed.life_span || translateText('N/D', language);
       case 'weight':
-        return breed.weight ? `${breed.weight.metric} kg` : 'N/A';
+        return breed.weight?.metric ? `${breed.weight.metric} kg` : translateText('N/D', language);
       case 'origin':
-        return breed.origin || 'N/A';
+        return breed.origin || translateText('N/D', language);
       case 'temperament':
         return breed.temperament ? (
           <div className="flex flex-wrap gap-1">
-            {breed.temperament.split(',').slice(0, 3).map((trait, i) => (
+            {getBreedTemperament(breed.temperament, language).split(',').slice(0, 3).map((trait, i) => (
               <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded-full">
                 {trait.trim()}
               </span>
             ))}
           </div>
-        ) : 'N/A';
-      case 'indoor':
-        return breed.indoor ? '✅ Sim' : '❌ Não';
+        ) : translateText('N/D', language);
+      case 'indoor': {
+        const indoor = parseBoolean(breed.indoor);
+        return indoor === null
+          ? translateText('N/D', language)
+          : indoor ? `✅ ${translateText('Sim', language)}` : `❌ ${translateText('Não', language)}`;
+      }
       default:
-        return 'N/A';
+        return translateText('N/D', language);
     }
   };
 
@@ -71,7 +80,7 @@ function ComparisonTable({ breeds }) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
           <span>📊</span>
-          Comparação Detalhada
+          {translateText('Comparação Detalhada', language)}
         </h2>
       </div>
 
@@ -81,7 +90,7 @@ function ComparisonTable({ breeds }) {
           <thead>
             <tr className="border-b-2 border-gray-200 dark:border-gray-700">
               <th className="text-left py-4 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                Característica
+                {translateText('Característica', language)}
               </th>
               {breeds.map((breed, index) => (
                 <th key={breed.id} className={`py-4 px-4 ${colors[index]} rounded-t-lg`}>
@@ -100,7 +109,7 @@ function ComparisonTable({ breeds }) {
               >
                 <td className="py-4 px-4 font-medium text-gray-700 dark:text-gray-300">
                   <span className="mr-2">{char.icon}</span>
-                  {char.label}
+                  {translateText(char.label, language)}
                 </td>
                 {breeds.map((breed) => (
                   <td key={breed.id} className="py-4 px-4 text-center">
@@ -117,14 +126,14 @@ function ComparisonTable({ breeds }) {
       <div className="grid grid-cols-1 gap-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Informações Gerais
+            {translateText('Informações Gerais', language)}
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <tbody>
                 <tr className="border-b border-gray-100 dark:border-gray-700">
                   <td className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                    📍 Origem
+                    📍 {translateText('Origem', language)}
                   </td>
                   {breeds.map((breed, index) => (
                     <td key={breed.id} className={`py-3 px-4 ${colors[index]}`}>
@@ -134,17 +143,17 @@ function ComparisonTable({ breeds }) {
                 </tr>
                 <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                   <td className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                    ⏳ Expectativa de Vida
+                    ⏳ {translateText('Expectativa de Vida', language)}
                   </td>
                   {breeds.map((breed, index) => (
                     <td key={breed.id} className={`py-3 px-4 ${colors[index]}`}>
-                      {renderInfo(breed, 'life_span')} anos
+                      {renderInfo(breed, 'life_span')} {breed.life_span ? translateText('anos', language) : ''}
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-gray-100 dark:border-gray-700">
                   <td className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                    ⚖️ Peso
+                    ⚖️ {translateText('Peso', language)}
                   </td>
                   {breeds.map((breed, index) => (
                     <td key={breed.id} className={`py-3 px-4 ${colors[index]}`}>
@@ -154,7 +163,7 @@ function ComparisonTable({ breeds }) {
                 </tr>
                 <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                   <td className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                    🏠 Indoor
+                    🏠 {translateText('Indoor', language)}
                   </td>
                   {breeds.map((breed, index) => (
                     <td key={breed.id} className={`py-3 px-4 ${colors[index]}`}>
@@ -164,7 +173,7 @@ function ComparisonTable({ breeds }) {
                 </tr>
                 <tr>
                   <td className="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                    😸 Temperamento
+                    😸 {translateText('Temperamento', language)}
                   </td>
                   {breeds.map((breed, index) => (
                     <td key={breed.id} className={`py-3 px-4 ${colors[index]}`}>

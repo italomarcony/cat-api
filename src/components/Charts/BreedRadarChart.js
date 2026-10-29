@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { useTheme } from '../../hooks/useTheme';
+import { getBreedRating, hasAnyBreedRatings } from '../../utils/breedData';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * BreedRadarChart - Gráfico radar com características de uma raça
@@ -9,6 +12,7 @@ function BreedRadarChart({ breed }) {
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
   const { theme } = useTheme();
+  const { language } = useLanguage();
 
   useEffect(() => {
     if (chartRef.current) {
@@ -18,19 +22,19 @@ function BreedRadarChart({ breed }) {
 
     if (!breed || !canvasRef.current) return;
 
-    const characteristics = {
-      'Afeto': breed.affection_level || 0,
-      'Energia': breed.energy_level || 0,
-      'Inteligência': breed.intelligence || 0,
-      'Sociabilidade': breed.social_needs || 0,
-      'C/ Crianças': breed.child_friendly || 0,
-      'C/ Cães': breed.dog_friendly || 0,
-      'Adaptabilidade': breed.adaptability || 0,
-      'Vocalização': breed.vocalisation || 0,
-    };
+    const characteristics = [
+      ['Afeto', 'affection_level'],
+      ['Energia', 'energy_level'],
+      ['Inteligência', 'intelligence'],
+      ['Sociabilidade', 'social_needs'],
+      ['C/ Crianças', 'child_friendly'],
+      ['C/ Cães', 'dog_friendly'],
+      ['Adaptabilidade', 'adaptability'],
+      ['Vocalização', 'vocalisation']
+    ];
 
-    const labels = Object.keys(characteristics);
-    const data = Object.values(characteristics);
+    const labels = characteristics.map(([label]) => translateText(label, language));
+    const data = characteristics.map(([, field]) => getBreedRating(breed, field));
 
     const isDark = theme === 'dark';
 
@@ -102,16 +106,22 @@ function BreedRadarChart({ breed }) {
         chartRef.current = null;
       }
     };
-  }, [breed, theme]);
+  }, [breed, theme, language]);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-        Características
+        {translateText('Características', language)}
       </h3>
-      <div style={{ height: '350px' }}>
-        <canvas ref={canvasRef}></canvas>
-      </div>
+      {hasAnyBreedRatings([breed]) ? (
+        <div style={{ height: '350px' }}>
+          <canvas ref={canvasRef}></canvas>
+        </div>
+      ) : (
+        <p className="py-16 text-center text-gray-600 dark:text-gray-300">
+          {translateText('O plano gratuito da The Cat API fornece apenas dados básicos; as notas e características necessárias para este gráfico não estão disponíveis.', language)}
+        </p>
+      )}
     </div>
   );
 }

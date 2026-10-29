@@ -1,10 +1,13 @@
 import React from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * QuizQuestion - Exibe uma pergunta do quiz com opções
  */
 function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrevious, selectedAnswer }) {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
+  const { language } = useLanguage();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -12,7 +15,7 @@ function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrev
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Pergunta {currentIndex + 1} de {totalQuestions}
+            {translateText('Pergunta', language)} {currentIndex + 1} {translateText('de', language)} {totalQuestions}
           </span>
           <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
             {Math.round(progress)}%
@@ -31,7 +34,7 @@ function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrev
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">{question.icon}</div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            {question.question}
+            {translateText(question.question, language)}
           </h2>
         </div>
 
@@ -61,7 +64,7 @@ function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrev
                       ? 'text-primary-700 dark:text-primary-300'
                       : 'text-gray-800 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400'
                   }`}>
-                    {option.text}
+                    {translateText(option.text, language)}
                   </p>
                 </div>
                 {selectedAnswer === option.value && (
@@ -91,11 +94,11 @@ function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrev
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Anterior
+          {translateText('Anterior', language)}
         </button>
 
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          {selectedAnswer ? '✓ Respondida' : 'Selecione uma opção'}
+          {selectedAnswer ? `✓ ${translateText('Respondida', language)}` : translateText('Selecione uma opção', language)}
         </div>
 
         {selectedAnswer && (
@@ -103,7 +106,7 @@ function QuizQuestion({ question, totalQuestions, currentIndex, onAnswer, onPrev
             onClick={() => onAnswer(selectedAnswer)}
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
-            {currentIndex === totalQuestions - 1 ? 'Finalizar' : 'Próxima'}
+            {translateText(currentIndex === totalQuestions - 1 ? 'Finalizar' : 'Próxima', language)}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

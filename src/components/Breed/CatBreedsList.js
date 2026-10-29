@@ -6,8 +6,12 @@ import SearchBar from '../UI/SearchBar';
 import FilterBar from '../UI/FilterBar';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import ErrorMessage from '../UI/ErrorMessage';
+import { getBreedRating, parseBoolean } from '../../utils/breedData';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function CatBreedsList() {
+  const { language } = useLanguage();
   const { breeds, loading, error } = useCatBreeds();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
@@ -18,6 +22,14 @@ function CatBreedsList() {
   const [indoorFilter, setIndoorFilter] = useState(false);
   const [selectedBreed, setSelectedBreed] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const availableRatings = useMemo(() => ({
+    affection: breeds.some((breed) => getBreedRating(breed, 'affection_level') !== null),
+    energy: breeds.some((breed) => getBreedRating(breed, 'energy_level') !== null),
+    intelligence: breeds.some((breed) => getBreedRating(breed, 'intelligence') !== null),
+    childFriendly: breeds.some((breed) => getBreedRating(breed, 'child_friendly') !== null),
+    dogFriendly: breeds.some((breed) => getBreedRating(breed, 'dog_friendly') !== null),
+    indoor: breeds.some((breed) => parseBoolean(breed.indoor) !== null)
+  }), [breeds]);
 
   // Extrair todas as origens únicas para o dropdown
   const availableOrigins = useMemo(() => {
@@ -34,7 +46,7 @@ function CatBreedsList() {
       filtered = filtered.filter(
         (breed) =>
           breed.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          breed.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (breed.origin || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
           breed.temperament?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -42,9 +54,11 @@ function CatBreedsList() {
     // Filtro de energia
     if (energyFilter !== 'all') {
       filtered = filtered.filter((breed) => {
-        if (energyFilter === 'low') return breed.energy_level <= 2;
-        if (energyFilter === 'medium') return breed.energy_level >= 3 && breed.energy_level <= 4;
-        if (energyFilter === 'high') return breed.energy_level === 5;
+        const rating = getBreedRating(breed, 'energy_level');
+        if (rating === null) return false;
+        if (energyFilter === 'low') return rating <= 2;
+        if (energyFilter === 'medium') return rating >= 3 && rating <= 4;
+        if (energyFilter === 'high') return rating === 5;
         return true;
       });
     }
@@ -56,21 +70,21 @@ function CatBreedsList() {
 
     // Filtro de compatibilidade com crianças
     if (childFriendlyFilter !== 'all') {
-      filtered = filtered.filter((breed) =>
-        (breed.child_friendly || 0) >= parseInt(childFriendlyFilter)
-      );
+      filtered = filtered.filter((breed) => (
+        (getBreedRating(breed, 'child_friendly') ?? -1) >= parseInt(childFriendlyFilter, 10)
+      ));
     }
 
     // Filtro de compatibilidade com cães
     if (dogFriendlyFilter !== 'all') {
-      filtered = filtered.filter((breed) =>
-        (breed.dog_friendly || 0) >= parseInt(dogFriendlyFilter)
-      );
+      filtered = filtered.filter((breed) => (
+        (getBreedRating(breed, 'dog_friendly') ?? -1) >= parseInt(dogFriendlyFilter, 10)
+      ));
     }
 
     // Filtro indoor
     if (indoorFilter) {
-      filtered = filtered.filter((breed) => breed.indoor === 1);
+      filtered = filtered.filter((breed) => parseBoolean(breed.indoor) === true);
     }
 
     // Ordenação
@@ -79,11 +93,15 @@ function CatBreedsList() {
         case 'name':
           return a.name.localeCompare(b.name);
         case 'affection':
-          return (b.affection_level || 0) - (a.affection_level || 0);
         case 'energy':
-          return (b.energy_level || 0) - (a.energy_level || 0);
-        case 'intelligence':
-          return (b.intelligence || 0) - (a.intelligence || 0);
+        case 'intelligence': {
+          const field = { affection: 'affection_level', energy: 'energy_level', intelligence: 'intelligence' }[sortBy];
+          const first = getBreedRating(a, field);
+          const second = getBreedRating(b, field);
+          if (first === null) return second === null ? a.name.localeCompare(b.name) : 1;
+          if (second === null) return -1;
+          return second - first;
+        }
         default:
           return 0;
       }
@@ -132,7 +150,7 @@ function CatBreedsList() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <LoadingSpinner message="Carregando raças de gatos..." />
+        <LoadingSpinner message={translateText('Carregando raças de gatos...', language)} />
       </div>
     );
   }
@@ -141,7 +159,7 @@ function CatBreedsList() {
     return (
       <div className="container mx-auto px-4 py-8">
         <ErrorMessage
-          message={`Erro ao carregar raças: ${error}`}
+          message={`${translateText('Erro ao carregar raças:', language)} ${error}`}
           onRetry={() => window.location.reload()}
         />
       </div>
@@ -154,7 +172,7 @@ function CatBreedsList() {
       <SearchBar
         value={searchTerm}
         onChange={setSearchTerm}
-        placeholder="Buscar por nome, origem ou temperamento..."
+        placeholder={translateText('Buscar por nome, origem ou temperamento...', language)}
       />
 
       {/* Filtros */}
@@ -172,13 +190,14 @@ function CatBreedsList() {
         indoorFilter={indoorFilter}
         onIndoorFilterChange={setIndoorFilter}
         availableOrigins={availableOrigins}
+        availableRatings={availableRatings}
         onClearFilters={handleClearFilters}
       />
 
       {/* Contador de resultados */}
       <div className="text-center mb-6">
         <p className="text-gray-600 dark:text-gray-400">
-          {filteredAndSortedBreeds.length} raça{filteredAndSortedBreeds.length !== 1 ? 's' : ''} encontrada{filteredAndSortedBreeds.length !== 1 ? 's' : ''}
+          {filteredAndSortedBreeds.length} {translateText(filteredAndSortedBreeds.length === 1 ? 'raça encontrada' : 'raças encontradas', language)}
         </p>
       </div>
 
@@ -186,7 +205,7 @@ function CatBreedsList() {
       {filteredAndSortedBreeds.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-gray-500 dark:text-gray-400 text-lg">
-            Nenhuma raça encontrada com os filtros selecionados.
+            {translateText('Nenhuma raça encontrada com os filtros selecionados.', language)}
           </p>
         </div>
       ) : (

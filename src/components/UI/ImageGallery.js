@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * ImageGallery - Galeria de imagens com navegação
@@ -6,13 +8,14 @@ import React, { useState } from 'react';
  * @param {string} alt - Texto alternativo
  */
 function ImageGallery({ images, alt }) {
+  const { language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   if (!images || images.length === 0) {
     return (
       <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-        <span className="text-gray-400 text-lg">Nenhuma imagem disponível</span>
+        <span className="text-gray-400 text-lg">{translateText('Nenhuma imagem disponível', language)}</span>
       </div>
     );
   }
@@ -33,7 +36,7 @@ function ImageGallery({ images, alt }) {
       <div className="relative w-full h-96 bg-gray-200 rounded-lg overflow-hidden">
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse flex items-center justify-center">
-            <span className="text-gray-400">Carregando...</span>
+            <span className="text-gray-400">{translateText('Carregando...', language)}</span>
           </div>
         )}
 
@@ -52,7 +55,7 @@ function ImageGallery({ images, alt }) {
             <button
               onClick={goToPrevious}
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full transition-all"
-              aria-label="Imagem anterior"
+              aria-label={translateText('Imagem anterior', language)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -62,7 +65,7 @@ function ImageGallery({ images, alt }) {
             <button
               onClick={goToNext}
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full transition-all"
-              aria-label="Próxima imagem"
+              aria-label={translateText('Próxima imagem', language)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import ChartContainer from '../UI/ChartContainer';
+import { getBreedTemperament } from '../../utils/breedData';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
+import { translateText } from '../../utils/i18n';
 
 /**
  * Gráfico de Top 10 Temperamentos mais Comuns
@@ -9,6 +12,7 @@ import { useTheme } from '../../hooks/useTheme';
 function TopTemperamentsChart({ breeds }) {
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
+  const { language } = useLanguage();
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -24,7 +28,7 @@ function TopTemperamentsChart({ breeds }) {
     const temperamentCounts = {};
     breeds.forEach(breed => {
       if (breed.temperament) {
-        breed.temperament.split(',').forEach(trait => {
+        new Set(getBreedTemperament(breed.temperament, language).split(',')).forEach(trait => {
           const t = trait.trim();
           temperamentCounts[t] = (temperamentCounts[t] || 0) + 1;
         });
@@ -47,7 +51,7 @@ function TopTemperamentsChart({ breeds }) {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Número de Raças',
+          label: translateText('Raças', language),
           data: data,
           backgroundColor: 'rgba(139, 92, 246, 0.6)', // purple
           borderColor: 'rgba(139, 92, 246, 1)',
@@ -66,7 +70,7 @@ function TopTemperamentsChart({ breeds }) {
           tooltip: {
             callbacks: {
               label: function(context) {
-                return `${context.parsed.x} raças`;
+                return `${context.parsed.x} ${translateText('raças', language)}`;
               }
             }
           }
@@ -104,17 +108,23 @@ function TopTemperamentsChart({ breeds }) {
         chartRef.current = null;
       }
     };
-  }, [breeds, theme]);
+  }, [breeds, language, theme]);
 
   return (
     <ChartContainer
-      title="Temperamentos Mais Comuns"
+      title={translateText('Temperamentos Mais Comuns', language)}
       icon="😸"
-      footer="Top 10 características de temperamento encontradas"
+      footer={translateText('Top 10 características de temperamento encontradas', language)}
     >
-      <div style={{ height: '400px' }}>
-        <canvas ref={canvasRef}></canvas>
-      </div>
+      {breeds?.some((breed) => typeof breed.temperament === 'string' && breed.temperament.trim()) ? (
+        <div style={{ height: '400px' }}>
+          <canvas ref={canvasRef}></canvas>
+        </div>
+      ) : (
+        <p className="py-12 text-center text-gray-600 dark:text-gray-300">
+          {translateText('Não há dados válidos para calcular esta estatística.', language)}
+        </p>
+      )}
     </ChartContainer>
   );
 }

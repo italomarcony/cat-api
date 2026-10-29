@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
+import { getBreedDescription } from '../../utils/breedTranslations';
+import { translateText } from '../../utils/i18n';
 
 function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSelect, onRemove }) {
+  const { language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -14,8 +18,8 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
   const filteredBreeds = useMemo(() => {
     if (!searchTerm) return availableBreeds;
     return availableBreeds.filter(breed =>
-      breed.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      breed.origin.toLowerCase().includes(searchTerm.toLowerCase())
+      (breed.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (breed.origin || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [availableBreeds, searchTerm]);
 
@@ -47,13 +51,13 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
     <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-2 ${colors[index]} transition-colors`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className={`text-lg font-semibold ${textColors[index]}`}>
-          Raça #{index + 1}
+          {translateText('Raça #', language)}{index + 1}
         </h3>
         {selectedBreed && (
           <button
             onClick={onRemove}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            title="Remover raça"
+            title={translateText('Remover raça', language)}
           >
             <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -81,10 +85,10 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
             {selectedBreed.name}
           </h4>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            📍 {selectedBreed.origin}
+            📍 {selectedBreed.origin || translateText('N/D', language)}
           </p>
           <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-3">
-            {selectedBreed.description}
+            {getBreedDescription(selectedBreed.name, selectedBreed.description, language)}
           </p>
         </div>
       ) : (
@@ -99,7 +103,7 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
                 setIsOpen(true);
               }}
               onFocus={() => setIsOpen(true)}
-              placeholder="Buscar ou selecionar raça..."
+              placeholder={translateText('Buscar ou selecionar raça...', language)}
               className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-all"
             />
             <button
@@ -121,7 +125,7 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
                 {searchTerm && (
                   <div className="px-4 py-2 bg-primary-50 dark:bg-primary-900/20 border-b border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-primary-700 dark:text-primary-300">
-                      🔍 Buscando: "{searchTerm}" ({filteredBreeds.length} resultado{filteredBreeds.length !== 1 ? 's' : ''})
+                      🔍 {translateText('Buscando', language)}: "{searchTerm}" ({filteredBreeds.length} {translateText('resultados', language)})
                     </p>
                   </div>
                 )}
@@ -141,7 +145,7 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
                               {breed.name}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              📍 {breed.origin}
+                              📍 {breed.origin || translateText('N/D', language)}
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,10 +162,10 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
                         </svg>
                       </div>
                       <p className="text-gray-500 dark:text-gray-400 font-medium">
-                        Nenhuma raça encontrada
+                        {translateText('Nenhuma raça encontrada', language)}
                       </p>
                       <p className="text-xs text-gray-400 dark:text-gray-600 mt-1">
-                        Tente buscar por outro nome
+                        {translateText('Tente buscar por outro nome', language)}
                       </p>
                     </div>
                   )}
@@ -170,7 +174,7 @@ function BreedSelector({ index, breeds, selectedBreed, otherSelectedBreeds, onSe
                 {/* Total count */}
                 <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
                   <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-                    {availableBreeds.length} raça{availableBreeds.length !== 1 ? 's' : ''} disponível{availableBreeds.length !== 1 ? 'eis' : ''}
+                    {availableBreeds.length} {translateText(availableBreeds.length === 1 ? 'raça disponível' : 'raças disponíveis', language)}
                   </p>
                 </div>
               </div>

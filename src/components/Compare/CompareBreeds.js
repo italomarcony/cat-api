@@ -5,8 +5,11 @@ import ComparisonTable from './ComparisonTable';
 import ComparisonRadarChart from './ComparisonRadarChart';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import ErrorMessage from '../UI/ErrorMessage';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function CompareBreeds() {
+  const { language } = useLanguage();
   const { breeds, loading, error } = useCatBreeds();
   const [selectedBreeds, setSelectedBreeds] = useState([null, null, null]);
 
@@ -32,7 +35,7 @@ function CompareBreeds() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <LoadingSpinner message="Carregando raças..." />
+        <LoadingSpinner message={translateText('Carregando raças...', language)} />
       </div>
     );
   }
@@ -41,7 +44,7 @@ function CompareBreeds() {
     return (
       <div className="container mx-auto px-4 py-8">
         <ErrorMessage
-          message={`Erro ao carregar raças: ${error}`}
+          message={`${translateText('Erro ao carregar raças:', language)} ${error}`}
           onRetry={() => window.location.reload()}
         />
       </div>
@@ -53,10 +56,10 @@ function CompareBreeds() {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
-          🔄 Comparador de Raças
+          🔄 {translateText('Comparador de Raças', language)}
         </h1>
         <p className="text-gray-600 dark:text-gray-400 text-lg">
-          Compare até 3 raças lado a lado e veja suas diferenças
+          {translateText('Compare até 3 raças lado a lado e veja suas diferenças', language)}
         </p>
       </div>
 
@@ -85,7 +88,7 @@ function CompareBreeds() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            Limpar Tudo
+            {translateText('Limpar Tudo', language)}
           </button>
         </div>
       )}
@@ -107,10 +110,10 @@ function CompareBreeds() {
             </svg>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-            Selecione pelo menos 2 raças para comparar
+            {translateText('Selecione pelo menos 2 raças para comparar', language)}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-            Use os campos de busca acima para escolher as raças que deseja comparar. Você pode comparar até 3 raças simultaneamente.
+            {translateText('Use os campos de busca acima para escolher as raças que deseja comparar. Você pode comparar até 3 raças simultaneamente.', language)}
           </p>
         </div>
       )}

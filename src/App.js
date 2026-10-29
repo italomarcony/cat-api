@@ -8,8 +8,12 @@ import StatsPage from "./pages/StatsPage";
 import ComparePage from "./pages/ComparePage";
 import QuizPage from "./pages/QuizPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { useLanguage } from "./hooks/useLanguage";
+import { translateText } from "./utils/i18n";
 
 function App() {
+  const { language } = useLanguage();
+
   return (
     <Router basename={process.env.PUBLIC_URL}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -28,7 +32,7 @@ function App() {
                     : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                 }`}
               >
-                🐱 Raças
+                🐱 {translateText('Raças', language)}
               </NavLink>
               <NavLink
                 to="/stats"
@@ -38,7 +42,7 @@ function App() {
                     : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                 }`}
               >
-                📊 Dashboard
+                📊 {translateText('Dashboard', language)}
               </NavLink>
               <NavLink
                 to="/compare"
@@ -48,7 +52,7 @@ function App() {
                     : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                 }`}
               >
-                🔄 Comparar
+                🔄 {translateText('Comparar', language)}
               </NavLink>
               <NavLink
                 to="/quiz"
@@ -58,7 +62,7 @@ function App() {
                     : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                 }`}
               >
-                🎯 Quiz
+                🎯 {translateText('Quiz', language)}
               </NavLink>
             </div>
           </div>

@@ -35,7 +35,12 @@ export const fetchBreeds = async (limit = null) => {
       throw createApiError(response, 'raças');
     }
 
-    return await response.json();
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      throw new Error('Resposta inesperada ao buscar raças: esperado um array.');
+    }
+
+    return data;
   } catch (error) {
     console.error('Erro ao buscar raças:', error);
     throw error;
@@ -59,7 +64,12 @@ export const fetchBreedImages = async (breedId, limit = 5) => {
       throw createApiError(response, 'imagens');
     }
 
-    return await response.json();
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      throw new Error('Resposta inesperada ao buscar imagens: esperado um array.');
+    }
+
+    return data;
   } catch (error) {
     console.error('Erro ao buscar imagens:', error);
     throw error;

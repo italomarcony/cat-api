@@ -5,7 +5,9 @@ import ShareButtons from '../UI/ShareButtons';
 import BreedRadarChart from '../Charts/BreedRadarChart';
 import { fetchBreedImages } from '../../services/catApi';
 import { useLanguage } from '../../hooks/useLanguage';
+import { getBreedTemperament, parseBoolean } from '../../utils/breedData';
 import { getBreedDescription } from '../../utils/breedTranslations';
+import { translateText } from '../../utils/i18n';
 
 /**
  * BreedDetailModal - Modal com detalhes completos da raça
@@ -18,38 +20,44 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
   // Buscar imagens da raça
   useEffect(() => {
     if (!breed || !isOpen) return;
+    let isCurrent = true;
+    setImages([]);
+    setLoadingImages(true);
 
     const loadImages = async () => {
-      setLoadingImages(true);
       try {
         const imageData = await fetchBreedImages(breed.id, 5);
-        const imageUrls = imageData.map(img => img.url);
+        const imageUrls = imageData.map(img => img.url).filter(Boolean);
 
         // Adicionar imagem de referência se existir
         if (breed.image?.url) {
-          setImages([breed.image.url, ...imageUrls]);
+          if (isCurrent) setImages([breed.image.url, ...imageUrls]);
         } else if (breed.reference_image_id) {
-          setImages([
+          if (isCurrent) setImages([
             `https://cdn2.thecatapi.com/images/${breed.reference_image_id}.jpg`,
             ...imageUrls
           ]);
         } else {
-          setImages(imageUrls);
+          if (isCurrent) setImages(imageUrls);
         }
       } catch (error) {
         console.error('Erro ao carregar imagens:', error);
         // Fallback para imagem de referência
         if (breed.image?.url) {
-          setImages([breed.image.url]);
+          if (isCurrent) setImages([breed.image.url]);
         } else if (breed.reference_image_id) {
-          setImages([`https://cdn2.thecatapi.com/images/${breed.reference_image_id}.jpg`]);
+          if (isCurrent) setImages([`https://cdn2.thecatapi.com/images/${breed.reference_image_id}.jpg`]);
         }
       } finally {
-        setLoadingImages(false);
+        if (isCurrent) setLoadingImages(false);
       }
     };
 
     loadImages();
+
+    return () => {
+      isCurrent = false;
+    };
   }, [breed, isOpen]);
 
   if (!breed) return null;
@@ -66,7 +74,7 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {breed.origin}
+              {breed.origin || translateText('N/D', language)}
             </p>
           </div>
 
@@ -81,7 +89,7 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
                     ? 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
                     : 'bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed'
                 }`}
-                title="Raça anterior"
+                title={translateText('Raça anterior', language)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -95,7 +103,7 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
                     ? 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
                     : 'bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed'
                 }`}
-                title="Próxima raça"
+                title={translateText('Próxima raça', language)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -112,24 +120,24 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
             {/* Galeria de Imagens */}
             {loadingImages ? (
               <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex items-center justify-center">
-                <span className="text-gray-400 dark:text-gray-500">Carregando imagens...</span>
+                <span className="text-gray-400 dark:text-gray-500">{translateText('Carregando imagens...', language)}</span>
               </div>
             ) : (
-              <ImageGallery images={images} alt={breed.name} />
+              <ImageGallery key={breed.id} images={images} alt={breed.name} />
             )}
 
             {/* Descrição */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Sobre esta raça</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{translateText('Sobre esta raça', language)}</h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base">{getBreedDescription(breed.name, breed.description, language)}</p>
             </div>
 
             {/* Temperamento */}
             {breed.temperament && (
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Temperamento</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{translateText('Temperamento', language)}</h3>
                 <div className="flex flex-wrap gap-2">
-                  {breed.temperament.split(',').map((trait, index) => (
+                  {getBreedTemperament(breed.temperament, language).split(',').map((trait, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm font-medium rounded-full"
@@ -149,36 +157,36 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
 
             {/* Informações Detalhadas */}
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informações</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{translateText('Informações', language)}</h3>
               <div className="space-y-3">
                 {breed.life_span && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Expectativa de Vida:</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{breed.life_span} anos</span>
+                    <span className="text-gray-600 dark:text-gray-400">{translateText('Expectativa de Vida', language)}:</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{breed.life_span} {translateText('anos', language)}</span>
                   </div>
                 )}
-                {breed.weight && (
+                {breed.weight?.metric && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Peso:</span>
+                    <span className="text-gray-600 dark:text-gray-400">{translateText('Peso', language)}:</span>
                     <span className="font-semibold text-gray-900 dark:text-white">{breed.weight.metric} kg</span>
                   </div>
                 )}
                 {breed.origin && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Origem:</span>
+                    <span className="text-gray-600 dark:text-gray-400">{translateText('Origem', language)}:</span>
                     <span className="font-semibold text-gray-900 dark:text-white">{breed.origin}</span>
                   </div>
                 )}
-                {breed.indoor !== undefined && (
+                {parseBoolean(breed.indoor) !== null && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Para Ambientes Internos:</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{breed.indoor ? 'Sim' : 'Não'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{translateText('Para Ambientes Internos', language)}:</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{translateText(parseBoolean(breed.indoor) ? 'Sim' : 'Não', language)}</span>
                   </div>
                 )}
-                {breed.lap !== undefined && (
+                {parseBoolean(breed.lap) !== null && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Gosta de Colo:</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{breed.lap ? 'Sim' : 'Não'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{translateText('Gosta de Colo', language)}:</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{translateText(parseBoolean(breed.lap) ? 'Sim' : 'Não', language)}</span>
                   </div>
                 )}
               </div>
@@ -187,7 +195,7 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
             {/* Links Externos */}
             {(breed.wikipedia_url || breed.cfa_url || breed.vcahospitals_url) && (
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Saiba Mais</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{translateText('Saiba Mais', language)}</h3>
                 <div className="space-y-2">
                   {breed.wikipedia_url && (
                     <a
@@ -223,7 +231,7 @@ function BreedDetailModal({ breed, isOpen, onClose, onNavigate, canNavigatePrev,
 
         {/* Footer com Compartilhamento */}
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Compartilhar esta raça</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{translateText('Compartilhar esta raça', language)}</h3>
           <ShareButtons breed={breed} />
         </div>
       </div>

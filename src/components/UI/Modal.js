@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * Modal - Componente de modal reutilizável
@@ -8,6 +10,7 @@ import React, { useEffect } from 'react';
  * @param {string} size - Tamanho do modal: 'sm', 'md', 'lg', 'xl', 'full'
  */
 function Modal({ isOpen, onClose, children, size = 'lg' }) {
+  const { language } = useLanguage();
   // Fechar com ESC
   useEffect(() => {
     const handleEsc = (e) => {
@@ -54,7 +57,7 @@ function Modal({ isOpen, onClose, children, size = 'lg' }) {
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            aria-label="Fechar"
+            aria-label={translateText('Fechar', language)}
           >
             <svg
               className="w-6 h-6 text-gray-600 dark:text-gray-300"

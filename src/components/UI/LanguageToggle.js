@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * LanguageToggle - Dropdown para selecionar idioma (PT-BR ou EN-US)
@@ -33,7 +34,7 @@ function LanguageToggle() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-600"
-        aria-label="Selecionar idioma"
+        aria-label={translateText('Selecionar idioma', language)}
       >
         <span className="text-lg">{currentLanguage.flag}</span>
         <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">

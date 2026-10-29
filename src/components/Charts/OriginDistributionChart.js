@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import ChartContainer from '../UI/ChartContainer';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useTheme } from '../../hooks/useTheme';
+import { translateText } from '../../utils/i18n';
 
 /**
  * Gráfico de Distribuição de Raças por Origem (Pizza/Donut)
@@ -9,6 +11,7 @@ import { useTheme } from '../../hooks/useTheme';
 function OriginDistributionChart({ breeds }) {
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
+  const { language } = useLanguage();
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -22,7 +25,8 @@ function OriginDistributionChart({ breeds }) {
 
     // Contar raças por origem
     const originCounts = breeds.reduce((acc, breed) => {
-      const origin = breed.origin || 'Unknown';
+      const origin = typeof breed.origin === 'string' ? breed.origin.trim() : '';
+      if (!origin) return acc;
       acc[origin] = (acc[origin] || 0) + 1;
       return acc;
     }, {});
@@ -57,7 +61,7 @@ function OriginDistributionChart({ breeds }) {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Número de Raças',
+          label: translateText('Raças', language),
           data: data,
           backgroundColor: colors,
           borderWidth: 2,
@@ -102,7 +106,7 @@ function OriginDistributionChart({ breeds }) {
                 const value = context.parsed;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                 const percentage = ((value / total) * 100).toFixed(1);
-                return `${label}: ${value} raças (${percentage}%)`;
+                return `${label}: ${value} ${translateText('raças', language)} (${percentage}%)`;
               }
             }
           }
@@ -119,17 +123,23 @@ function OriginDistributionChart({ breeds }) {
         chartRef.current = null;
       }
     };
-  }, [breeds, theme]);
+  }, [breeds, language, theme]);
 
   return (
     <ChartContainer
-      title="Distribuição por Origem"
+      title={translateText('Distribuição por Origem', language)}
       icon="🌍"
-      footer={`Top 10 países de origem das ${breeds?.length || 0} raças`}
+      footer={translateText('Top 10 países de origem das raças', language)}
     >
-      <div style={{ height: '400px' }}>
-        <canvas ref={canvasRef}></canvas>
-      </div>
+      {breeds?.some((breed) => typeof breed.origin === 'string' && breed.origin.trim()) ? (
+        <div style={{ height: '400px' }}>
+          <canvas ref={canvasRef}></canvas>
+        </div>
+      ) : (
+        <p className="py-12 text-center text-gray-600 dark:text-gray-300">
+          {translateText('Não há dados válidos para calcular esta estatística.', language)}
+        </p>
+      )}
     </ChartContainer>
   );
 }

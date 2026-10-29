@@ -6,10 +6,14 @@ import QuizResults from './QuizResults';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import ErrorMessage from '../UI/ErrorMessage';
 import { questions } from './quizQuestions';
-import { calculateMatches } from './quizAlgorithm';
+import { calculateMatches, hasQuizData } from './quizAlgorithm';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function Quiz() {
   const { breeds, loading, error } = useCatBreeds();
+  const { language } = useLanguage();
+  const quizDataAvailable = hasQuizData(breeds);
   const [quizState, setQuizState] = useState('welcome'); // 'welcome', 'quiz', 'loading', 'results'
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -60,7 +64,7 @@ function Quiz() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <LoadingSpinner message="Carregando quiz..." />
+        <LoadingSpinner message={translateText('Carregando quiz...', language)} />
       </div>
     );
   }
@@ -69,7 +73,7 @@ function Quiz() {
     return (
       <div className="container mx-auto px-4 py-8">
         <ErrorMessage
-          message={`Erro ao carregar quiz: ${error}`}
+          message={`${translateText('Erro ao carregar quiz:', language)} ${error}`}
           onRetry={() => window.location.reload()}
         />
       </div>
@@ -79,7 +83,7 @@ function Quiz() {
   return (
     <div className="container mx-auto px-4 py-8">
       {quizState === 'welcome' && (
-        <QuizWelcome onStart={handleStart} />
+        <QuizWelcome onStart={handleStart} isAvailable={quizDataAvailable} />
       )}
 
       {quizState === 'quiz' && (
@@ -98,10 +102,10 @@ function Quiz() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-12 text-center border border-gray-200 dark:border-gray-700">
             <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-primary-600 dark:border-primary-400 mx-auto mb-6"></div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-              Analisando suas respostas...
+              {translateText('Analisando suas respostas...', language)}
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Estamos encontrando as raças perfeitas para você! 🐱✨
+              {translateText('Estamos encontrando as raças que mais combinam com você!', language)} 🐱✨
             </p>
           </div>
         </div>

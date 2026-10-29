@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 /**
  * Footer - Rodapé completo com links, informações e redes sociais
  */
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const { language } = useLanguage();
 
   return (
     <footer className="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg transition-colors">
@@ -32,32 +35,32 @@ function Footer() {
               <h3 className="text-xl font-bold text-white">MiauPédia</h3>
             </div>
             <p className="text-sm text-primary-50 dark:text-gray-300 leading-relaxed">
-              Sua enciclopédia completa sobre raças de gatos. Explore, compare e descubra a raça perfeita para você!
+              {translateText('Sua enciclopédia completa sobre raças de gatos. Explore, compare e descubra a raça perfeita para você!', language)}
             </p>
           </div>
 
           {/* Navegação Rápida */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-4">Navegação</h4>
+            <h4 className="text-lg font-semibold text-white mb-4">{translateText('Navegação', language)}</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-primary-50 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors flex items-center gap-2">
-                  <span>🐱</span> Raças
+                  <span>🐱</span> {translateText('Raças', language)}
                 </Link>
               </li>
               <li>
                 <Link to="/stats" className="text-primary-50 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors flex items-center gap-2">
-                  <span>📊</span> Dashboard
+                  <span>📊</span> {translateText('Dashboard', language)}
                 </Link>
               </li>
               <li>
                 <Link to="/compare" className="text-primary-50 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors flex items-center gap-2">
-                  <span>🔄</span> Comparar
+                  <span>🔄</span> {translateText('Comparar', language)}
                 </Link>
               </li>
               <li>
                 <Link to="/quiz" className="text-primary-50 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors flex items-center gap-2">
-                  <span>🎯</span> Quiz
+                  <span>🎯</span> {translateText('Quiz', language)}
                 </Link>
               </li>
             </ul>
@@ -65,7 +68,7 @@ function Footer() {
 
           {/* Links Úteis */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-4">Links</h4>
+            <h4 className="text-lg font-semibold text-white mb-4">{translateText('Links', language)}</h4>
             <ul className="space-y-2">
               <li>
                 <a href="https://thecatapi.com" target="_blank" rel="noopener noreferrer" className="text-primary-50 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors flex items-center gap-2">
@@ -96,19 +99,19 @@ function Footer() {
 
           {/* Estatísticas Rápidas */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-4">Estatísticas</h4>
+            <h4 className="text-lg font-semibold text-white mb-4">{translateText('Estatísticas', language)}</h4>
             <div className="space-y-3">
               <div className="bg-primary-500/20 dark:bg-gray-800 rounded-lg p-3 border border-primary-400/30 dark:border-gray-700">
                 <div className="text-2xl font-bold text-white">67+</div>
-                <div className="text-sm text-primary-50 dark:text-gray-300">Raças Catalogadas</div>
+                <div className="text-sm text-primary-50 dark:text-gray-300">{translateText('Raças Catalogadas', language)}</div>
               </div>
               <div className="bg-primary-500/20 dark:bg-gray-800 rounded-lg p-3 border border-primary-400/30 dark:border-gray-700">
                 <div className="text-2xl font-bold text-white">8+</div>
-                <div className="text-sm text-primary-50 dark:text-gray-300">Gráficos Interativos</div>
+                <div className="text-sm text-primary-50 dark:text-gray-300">{translateText('Gráficos Interativos', language)}</div>
               </div>
               <div className="bg-primary-500/20 dark:bg-gray-800 rounded-lg p-3 border border-primary-400/30 dark:border-gray-700">
                 <div className="text-2xl font-bold text-white">10</div>
-                <div className="text-sm text-primary-50 dark:text-gray-300">Perguntas no Quiz</div>
+                <div className="text-sm text-primary-50 dark:text-gray-300">{translateText('Perguntas no Quiz', language)}</div>
               </div>
             </div>
           </div>
@@ -119,9 +122,9 @@ function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
             <div className="text-sm text-primary-50 dark:text-gray-300 text-center md:text-left">
-              <p>© {currentYear} MiauPédia. Todos os direitos reservados.</p>
+              <p>© {currentYear} MiauPédia. {translateText('Todos os direitos reservados.', language)}</p>
               <p className="mt-1">
-                Dados fornecidos por{' '}
+                {translateText('Dados fornecidos por', language)}{' '}
                 <a
                   href="https://thecatapi.com"
                   target="_blank"
@@ -136,7 +139,7 @@ function Footer() {
             {/* Desenvolvedor e Tecnologias */}
             <div className="flex flex-col md:flex-row items-center gap-3">
               <div className="text-sm text-primary-50 dark:text-gray-300">
-                Feito com <span className="text-red-400">❤️</span> por{' '}
+                {translateText('Feito com', language)} <span className="text-red-400">❤️</span> {translateText('por', language)}{' '}
                 <a
                   href="https://www.linkedin.com/in/italomarcony6532/"
                   target="_blank"

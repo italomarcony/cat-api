@@ -1,11 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { useTheme } from '../../hooks/useTheme';
+import { getBreedRating, hasAnyBreedRatings } from '../../utils/breedData';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function ComparisonRadarChart({ breeds }) {
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
   const { theme } = useTheme();
+  const { language } = useLanguage();
 
   useEffect(() => {
     if (chartRef.current) {
@@ -13,19 +17,19 @@ function ComparisonRadarChart({ breeds }) {
       chartRef.current = null;
     }
 
-    if (!breeds || breeds.length === 0 || !canvasRef.current) return;
+    if (!breeds || breeds.length === 0 || !hasAnyBreedRatings(breeds) || !canvasRef.current) return;
 
     const isDark = theme === 'dark';
 
     const labels = [
-      'Afeto',
-      'Energia',
-      'Inteligência',
-      'Social',
-      'C/ Crianças',
-      'C/ Cães',
-      'Adaptável',
-      'Vocalização'
+      translateText('Afeto', language),
+      translateText('Energia', language),
+      translateText('Inteligência', language),
+      translateText('Social', language),
+      translateText('C/ Crianças', language),
+      translateText('C/ Cães', language),
+      translateText('Adaptabilidade', language),
+      translateText('Vocalização', language)
     ];
 
     const colors = [
@@ -49,14 +53,14 @@ function ComparisonRadarChart({ breeds }) {
     const datasets = breeds.map((breed, index) => ({
       label: breed.name,
       data: [
-        breed.affection_level || 0,
-        breed.energy_level || 0,
-        breed.intelligence || 0,
-        breed.social_needs || 0,
-        breed.child_friendly || 0,
-        breed.dog_friendly || 0,
-        breed.adaptability || 0,
-        breed.vocalisation || 0
+        getBreedRating(breed, 'affection_level'),
+        getBreedRating(breed, 'energy_level'),
+        getBreedRating(breed, 'intelligence'),
+        getBreedRating(breed, 'social_needs'),
+        getBreedRating(breed, 'child_friendly'),
+        getBreedRating(breed, 'dog_friendly'),
+        getBreedRating(breed, 'adaptability'),
+        getBreedRating(breed, 'vocalisation')
       ],
       fill: true,
       backgroundColor: colors[index].bg,
@@ -141,23 +145,29 @@ function ComparisonRadarChart({ breeds }) {
         chartRef.current = null;
       }
     };
-  }, [breeds, theme]);
+  }, [breeds, theme, language]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 transition-colors">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
           <span>📊</span>
-          Comparação Visual
+          {translateText('Comparação Visual', language)}
         </h2>
       </div>
 
-      <div style={{ height: '500px' }} className="flex items-center justify-center">
-        <canvas ref={canvasRef}></canvas>
-      </div>
+      {hasAnyBreedRatings(breeds) ? (
+        <div style={{ height: '500px' }} className="flex items-center justify-center">
+          <canvas ref={canvasRef}></canvas>
+        </div>
+      ) : (
+        <p className="py-16 text-center text-gray-600 dark:text-gray-300">
+          {translateText('O plano gratuito da The Cat API fornece apenas dados básicos; as notas e características necessárias para este gráfico não estão disponíveis.', language)}
+        </p>
+      )}
 
       <p className="text-sm text-gray-600 dark:text-gray-400 text-center mt-4">
-        Quanto maior a área de cada cor, mais forte é a característica da raça
+        {translateText('Quanto maior a área de cada cor, mais forte é a característica da raça', language)}
       </p>
     </div>
   );

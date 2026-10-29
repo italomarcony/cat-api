@@ -1,7 +1,11 @@
 import React from 'react';
 import LanguageToggle from '../UI/LanguageToggle';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
 function Header() {
+  const { language } = useLanguage();
+
   return (
     <header className="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg transition-colors relative">
       <LanguageToggle />
@@ -25,7 +29,7 @@ function Header() {
           <h1 className="text-4xl font-bold">MiauPédia</h1>
         </div>
         <p className="text-center text-primary-100 dark:text-gray-300 mt-2">
-          Sua enciclopédia completa sobre raças de gatos
+          {translateText('Sua enciclopédia completa sobre raças de gatos', language)}
         </p>
       </div>
     </header>

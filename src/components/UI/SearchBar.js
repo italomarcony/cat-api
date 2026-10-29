@@ -1,6 +1,10 @@
 import React from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
+import { translateText } from '../../utils/i18n';
 
-function SearchBar({ value, onChange, placeholder = "Buscar raças..." }) {
+function SearchBar({ value, onChange, placeholder = 'Buscar raças...' }) {
+  const { language } = useLanguage();
+
   return (
     <div className="w-full max-w-2xl mx-auto mb-8">
       <div className="relative">
@@ -8,7 +12,7 @@ function SearchBar({ value, onChange, placeholder = "Buscar raças..." }) {
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder={translateText(placeholder, language)}
           className="w-full px-5 py-3 pl-12 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-500"
         />
         <svg

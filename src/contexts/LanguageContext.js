@@ -1,16 +1,23 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const LanguageContext = createContext();
+const supportedLanguages = ['pt-BR', 'en-US'];
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(() => {
-    // Carregar idioma salvo ou usar PT-BR como padrão
+  const [language, setCurrentLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem('language');
-    return savedLanguage || 'pt-BR';
+    return supportedLanguages.includes(savedLanguage) ? savedLanguage : 'pt-BR';
   });
+  const setLanguage = (nextLanguage) => {
+    setCurrentLanguage((currentLanguage) => {
+      const selectedLanguage = typeof nextLanguage === 'function'
+        ? nextLanguage(currentLanguage)
+        : nextLanguage;
+      return supportedLanguages.includes(selectedLanguage) ? selectedLanguage : currentLanguage;
+    });
+  };
 
   useEffect(() => {
-    // Salvar idioma no localStorage quando mudar
     localStorage.setItem('language', language);
   }, [language]);
 
