@@ -8,6 +8,16 @@ const API_KEY = process.env.REACT_APP_CAT_API_KEY || '';
 
 const headers = API_KEY ? { 'x-api-key': API_KEY } : {};
 
+const createApiError = (response, resource) => {
+  if (response.status === 403) {
+    return new Error(
+      'A The Cat API recusou o acesso (403). Verifique se REACT_APP_CAT_API_KEY está configurada com uma chave válida.'
+    );
+  }
+
+  return new Error(`Erro ao buscar ${resource}: ${response.status}`);
+};
+
 /**
  * Busca todas as raças de gatos
  * @param {number} limit - Limite de raças a retornar
@@ -22,7 +32,7 @@ export const fetchBreeds = async (limit = null) => {
     const response = await fetch(url, { headers });
 
     if (!response.ok) {
-      throw new Error(`Erro ao buscar raças: ${response.status}`);
+      throw createApiError(response, 'raças');
     }
 
     return await response.json();
@@ -46,7 +56,7 @@ export const fetchBreedImages = async (breedId, limit = 5) => {
     );
 
     if (!response.ok) {
-      throw new Error(`Erro ao buscar imagens: ${response.status}`);
+      throw createApiError(response, 'imagens');
     }
 
     return await response.json();
@@ -66,7 +76,7 @@ export const fetchBreedById = async (breedId) => {
     const response = await fetch(`${API_BASE_URL}/breeds/${breedId}`, { headers });
 
     if (!response.ok) {
-      throw new Error(`Erro ao buscar raça: ${response.status}`);
+      throw createApiError(response, 'raça');
     }
 
     return await response.json();

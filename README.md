@@ -9,7 +9,7 @@ Além da exploração individual das raças, a aplicação transforma os dados d
 ## 🚀 Demo
 
 **Acesse a aplicação:**
-https://italomarcony.github.io/teste-catapi/
+https://italomarcony.github.io/cat-api/
 
 ---
 
@@ -365,6 +365,10 @@ REACT_APP_CAT_API_KEY=sua_api_key
 
 Uma API Key pode ser obtida gratuitamente através da The Cat API.
 
+O projeto chama a API diretamente pelo navegador. A chave configurada em
+`REACT_APP_CAT_API_KEY` fica incorporada no JavaScript público da aplicação;
+use apenas uma chave destinada a uso no frontend e não uma credencial privada.
+
 ### 5. Execute a aplicação
 
 ```bash
@@ -412,6 +416,12 @@ npm run deploy
 ```
 
 Realiza o deploy da aplicação através do GitHub Pages.
+
+O workflow do GitHub Actions também publica automaticamente quando há push
+para `main`. Para que as chamadas à The Cat API funcionem na versão publicada,
+adicione um secret `REACT_APP_CAT_API_KEY` nas configurações do repositório.
+Como a chave é usada no navegador, ela continuará visível para os visitantes
+no bundle publicado.
 
 ---
 
